@@ -2,181 +2,170 @@ package zoho;
 
 import java.util.*;
 /*
-The are 6 points(A,B,C,D,E,F) 15 KM apart 60 min travel between each, n taxis all taxis at A starting
-100 rs for first 5 KM and then 10 for each of the further KMs, rate from pickup to drop only
-pickup time example : 9 hrs, 15 hrs
-
-When a customer books a Taxi, a free taxi at that point is allocated
--If no free taxi is available at that point, a free taxi at the nearest point is allocated.
--If two taxiâ€™s are free at the same point, one with lower earning is allocated
--If no taxi is free at that time, booking is rejected
-
-
-Input 1:
-Customer ID: 1
-Pickup Point: A
-Drop Point: B
-Pickup Time: 9
-
-Output 1:
-Taxi can be allotted.
-Taxi-1 is allotted
+	The are 6 points(A,B,C,D,E,F) 15 KM apart 60 min travel between each, n taxis all taxis 
+	at A starting. 100 rs for first 5 KM and then 10 for each of the further KMs, rate from 
+	pickup to drop only pickup time example : 9 hrs, 15 hrs
+	
+	When a customer books a Taxi, a free taxi at that point is allocated
+	-If no free taxi is available at that point, a free taxi at the nearest point is allocated.
+	-If two taxi’s are free at the same point, one with lower earning is allocated
+	-If no taxi is free at that time, booking is rejected
+	
+	
+	Input 1:
+	Customer ID: 1
+	Pickup Point: A
+	Drop Point: B
+	Pickup Time: 9
+	
+	Output 1:
+	Taxi can be allotted.
+	Taxi-1 is allotted
 
 */
 
 public class TaxiBooking
 {
-    public static void bookTaxi(int customerID,char pickupPoint,char dropPoint,int pickupTime,List<Taxi> freeTaxis)
-    {
-        // to find nearest
-        int min = 999;
-
-        //distance between pickup and drop
-        int distanceBetweenpickUpandDrop = 0;
-
-        //this trip earning
-        int earning = 0;
-
-        //where taxi is after trip is over
-        char nextSpot = 'Z';
-
-        //booked taxi
-        Taxi bookedTaxi = null;
-        
-        //Calculate the nextFree time
-        int dropTime = 0;
-
-        //all details of current trip as string
-        String tripDetail = "";
-        
-        for(Taxi t : freeTaxis)
-        {
-            int distanceBetweenCustomerAndTaxi = Math.abs((t.currentSpot - '0') - (pickupPoint - '0')) * 15;
-            if(distanceBetweenCustomerAndTaxi < min)
-            {
-                bookedTaxi = t;
-                //distance between pickup and drop = (drop - pickup) * 15KM
-                distanceBetweenpickUpandDrop = Math.abs((dropPoint - '0') - (pickupPoint - '0')) * 15;
-                //trip earning = 100 + (distanceBetweenpickUpandDrop-5) * 10
-                earning = (distanceBetweenpickUpandDrop-5) * 10 + 100;
-                
-                //drop time calculation
-                dropTime  = pickupTime + distanceBetweenpickUpandDrop/15;
-                
-                //taxi will be at drop point after trip
-                nextSpot = dropPoint;
-
-                // creating trip detail
-                tripDetail = customerID + "               " + customerID + "          " + pickupPoint +  "      " + dropPoint + "       " + pickupTime + "          " +dropTime + "           " + earning;
-                min = distanceBetweenCustomerAndTaxi;
-            }
-            
-        }
-
-        //setting corresponding details to allotted taxi
-        bookedTaxi.setDetails(true,nextSpot,dropTime,bookedTaxi.totalEarnings + earning,tripDetail);
-        //BOOKED SUCCESSFULLY
-        System.out.println("Taxi " + bookedTaxi.id + " booked");
-
-    }
-
-    public static List<Taxi> createTaxis(int n)
-    {
-        List<Taxi> taxis = new ArrayList<Taxi>();
-        // create taxis
-        for(int i=1 ;i <=n;i++)
-        {
-            Taxi t = new Taxi();
-            taxis.add(t);
-        }
-        return taxis;
-    }
-
-    public static List<Taxi> getFreeTaxis(List<Taxi> taxis,int pickupTime,char pickupPoint)
-    {
-        List<Taxi> freeTaxis = new ArrayList<Taxi>();
-        for(Taxi t : taxis)
-        {   
-            //taxi should be free
-            //taxi should have enough time to reach customer before pickuptime
-            if(t.freeTime <= pickupTime && (Math.abs((t.currentSpot - '0') - (pickupPoint - '0')) <= pickupTime - t.freeTime))
-            freeTaxis.add(t);
-
-        }
-        return freeTaxis;
-    }
-
-
+	public static Scanner in = new Scanner(System.in);
+	
     public static void main(String[] args)
     {
 
-        //create 4 taxis
-        List<Taxi> taxis = createTaxis(4);
-
-        Scanner s = new Scanner(System.in);
-        int id = 1;
-
-        while(true)
-        {
-        System.out.println("0 - > Book Taxi");
-        System.out.println("1 - > Print Taxi details");
-        int choice = s.nextInt();
-        switch(choice)
-        {
-        case 0:
-        {
-        //get details from customers
-        
-        int customerID = id;
-        System.out.println("Enter Pickup point");
-        char pickupPoint = s.next().charAt(0);
-        System.out.println("Enter Drop point");
-        char dropPoint = s.next().charAt(0);
-        System.out.println("Enter Pickup time");
-        int pickupTime = s.nextInt();
-
-        //check if pickup and drop points are valid
-        if(pickupPoint < 'A' || dropPoint > 'F' || pickupPoint > 'F' || dropPoint < 'A')
-        {
-            System.out.println("Valid pickup and drop are A, B, C, D, E, F. Exitting");
-            return;
-        }
-        // get all free taxis that can reach customer on or before pickup time
-        List<Taxi> freeTaxis = getFreeTaxis(taxis,pickupTime,pickupPoint);
-
-        //no free taxi means we cannot allot, exit!
-        if(freeTaxis.size() == 0)
-        {
-            System.out.println("No Taxi can be alloted. Exitting");
-            return;
-        }    
-
-        //sort taxis based on earnings 
-        Collections.sort(freeTaxis,(a,b)->a.totalEarnings - b.totalEarnings); 
-        // 3,4,2 - > 2,3,4
-
-        //get free Taxi nearest to us
-        bookTaxi(id,pickupPoint,dropPoint,pickupTime,freeTaxis);
-        id++;
-        break;
-        }
-        case 1:
-        {
-            //two functions to print details
-             for(Taxi t : taxis)
-                t.printTaxiDetails();
-             for(Taxi t : taxis)
-                t.printDetails();
-            break;
-        }
-        default:
-            return;
-        }
-      
-        }
+       System.out.println("----WELCOME TO JET CARS----");
+       boolean loop=true;
+       int cus_id=1;
        
+       Taxi[] taxi=new Taxi[4];//CREATING 4 TAXI OBJECTS
+       for(int i=0; i<4; ++i)
+			taxi[i]=new Taxi();
+       
+   
+       while(loop)
+       {
+    	   System.out.println("Enter 1.Booking  2.TaxiDetails  3.Exit");
+    	   int choice=in.nextInt();
+    	   
+    	   switch(choice)
+    	   {
+    	   	case 1:
+    	   		System.out.println("------ TAXI BOOKING SECTION ------");
+    	   		System.out.println("Enter pickup point ");
+    	   		char pickup=in.next().charAt(0);
+    	   		System.out.println("Enter drop point");
+    	   		char drop=in.next().charAt(0);
+    	   		
+    	   		//CONSIDERING THE ERROR EDGE CASES
+    	   		if(pickup<'A' || pickup>'F' || drop<'A' || drop>'F' || pickup==drop)
+    	   		{
+    	   			System.out.println("You entered the worng pickup(or)drop point!!! "
+    	   					+ "Make sure that you have enter the currct locations->(A,B,C,D,E,F) \n");
+    	   			break;
+    	   		}
+    	   		
+    	   		System.out.println("Enter pickup time (railway time)");
+    	   		int pickup_time=in.nextInt();
+    	   		
+    	   		//GET FREE TAXI LIST
+    	   		List<Taxi> free_taxi=getFreeTaxi(pickup,pickup_time,taxi);
+    	   		//CHECK ANY TAXI IS AVAILABLE OR NOT
+    	   		if(free_taxi.size()==0)
+    	   		{
+    	   			System.out.println("No Taxi is available...");
+    	   			break;
+    	   		}
+    	   		//SORTING BAASED ON EARNINGS - ASCENDING 
+    	   		Collections.sort(free_taxi, (a,b) -> a.earnings - b.earnings);
+    	   		
+    	   		bookTaxi(free_taxi,cus_id,pickup,drop,pickup_time);
+    	   		//INCREMENTING CUSTOMER ID
+    	    	cus_id++;
+    	   		break;
+    	   		
+    	   	case 2:
+    	   		System.out.println("------- TAXI DETAILS SECTION -------\n");
+    	   		printDetails(taxi);
+    	   		break;
+    	   		
+    	   	default:
+    	   		loop=false;
+    	   }
+    	  
+       }
+       
+       System.out.println("Good Bye!!! Visit again");
+    }
+    
+    public static List<Taxi> getFreeTaxi(int pickup, int pickup_time, Taxi[] taxi)
+    {
+    	List<Taxi> free_taxi=new ArrayList<>();
+    	
+    	for(Taxi t:taxi)
+    	{    		
+    		//ADDING TAXI, IF THE TAXI IS FREE BEFORE THE PICKUP TIME AND IT MUST ARRIVE THE PICKUP PLACE IN TIME
+    		if(t.free_time <= pickup_time && Math.abs(t.current_place - pickup) <= (pickup_time - t.free_time))
+    			free_taxi.add(t);
+    	}
+    	
+    	return free_taxi;
+    }
+    
+    public static void bookTaxi(List<Taxi> free_taxi,int cus_id,char pickup,char drop,int pickup_time)
+    {
+    	int min=111;//APPROXIMATE VALUE
+    	
+    	int distance_pickup_to_drop=0, earnings=0, duration=0;
+    	
+    	String details="";
+    	
+    	Taxi booked_taxi = null;
+    	
+    	for(Taxi t:free_taxi)
+    	{
+    		//JAVA AUTOMATICALLY CONVERTS CHAR -> ASCII VALUE WHEN WE PERFORM ANY ARITHMETIC OPERATION
+    		int distance_customer_to_taxi=Math.abs(t.current_place - pickup) * 15;
+    		
+    		if(distance_customer_to_taxi < min)
+    		{
+    			min=distance_customer_to_taxi;
+    			
+    			//CALCULATING THE TRAVEL DISTACE FROM THE PICKUP POINT
+    			distance_pickup_to_drop=Math.abs(pickup - drop) * 15;
+    			//CALCULATING AMOUNT OF THIS TRIP
+    			earnings=(distance_pickup_to_drop-5) * 10 + 100;
+    			//CALCULATING THE DROP TIME
+    			duration=(distance_pickup_to_drop / 15);
+    			
+    			details=t.id+"	 "+cus_id+"	  "+pickup+" 	 "+drop+"	  "+duration+"	  "+earnings;
+    			booked_taxi=t;
+    		}
+    	}
+    
+    	//CALCULATING DROP TIME FROM THE PICKUP TIME BY ADDING THE DURATION OF TRAVEL
+    	int drop_time=duration+pickup_time;
+    	//UPDATING NEW VALUES 
+    	booked_taxi.setDetails(true,drop,drop_time,earnings,details);
+    	
+    	System.out.println("Taxi "+booked_taxi.id+" booked successfully \n");
+    }
+    
+    public static void printDetails(Taxi[] taxi)
+    {
+    	for(Taxi t:taxi)
+    	{
+    		System.out.println("Taxi Id - > "+t.id+"  Toatal earnings -> "+t.earnings+"  Free time -> "+t.free_time
+    				+"   Current place -> "+t.current_place);
+    		System.out.println("-----------------------------------------------------------------");
+    		System.out.println("t_id	cus_id   from	to	duration   earnings");
+    		for(String str:t.trip_details)
+    		{
+    			System.out.println(" "+str);
+    		}
+    		System.out.println();
+    	}
     }
 }
+
+
 
 
 

@@ -5,53 +5,33 @@ import java.util.List;
 
 class Taxi
 {
-
-     static int taxicount = 0; // taxi number
-     int id;
-     boolean booked; //taxi booked or not
-     char currentSpot; //where taxi is now
-     int freeTime; // when taxi becomes free
-     int totalEarnings; // total earnings of taxi
-     List<String> trips; // all details of all trips by this taxi
-     
-    
-    public Taxi()
-    {
-    	taxicount = taxicount + 1; // everytime new taxi is created a new id will be assigned
-        id = taxicount;
-        booked = false;
-        currentSpot = 'A';//start point A
-        freeTime = 6;//example 6 AM
-        totalEarnings = 0;
-        trips = new ArrayList<String>();
-    }
-
-    public void setDetails(boolean booked,char currentSpot,int freeTime,int totalEarnings,String tripDetail)
-    {
-            this.booked = booked;
-            this.currentSpot = currentSpot;
-            this.freeTime = freeTime;
-            this.totalEarnings = totalEarnings;
-            this.trips.add(tripDetail);
-    }
-
-    public void printDetails()
-    {
-        //print all trips details
-        System.out.println("Taxi - "+ this.id + " Total Earnings - " + this.totalEarnings);
-        System.out.println("TaxiID    BookingID    CustomerID    From    To    PickupTime    DropTime    Amount");
-        for(String trip : trips)
-        {
-            System.out.println(id + "          " + trip);
-        }
-        System.out.println("--------------------------------------------------------------------------------------");
-    }
-
-    public void printTaxiDetails()
-    {
-        //print total earningand taxi details like current location and free time
-        System.out.println("Taxi - "+ this.id + " Total Earnings - " + this.totalEarnings + " Current spot - " + this.currentSpot +" Free Time - " + this.freeTime);
-    }
-    
-    
+	static int taxi_count=1;
+	
+	int id;
+	boolean booked;
+	char current_place;
+	int free_time;
+	int earnings;
+	List<String> trip_details;
+	
+	Taxi()//DEFAULT CONSTRUCTOR
+	{
+		this.id=taxi_count++;
+		this.booked=false;
+		this.current_place='A';
+		this.free_time=6;
+		this.earnings=0;
+		this.trip_details=new ArrayList<>();
+	}
+	
+	//UPDATING NEW VALUES
+	public void setDetails(boolean status,char current_place,int duration,int earnings,String trip_detail)
+	{
+		this.booked=status;
+		this.current_place=current_place;
+		this.free_time=duration;
+		this.earnings+=earnings;
+		this.trip_details.add(trip_detail);
+	}
+	
 }
